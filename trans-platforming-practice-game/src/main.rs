@@ -76,14 +76,16 @@ impl TransPlatformer {
     fn new(ctx: &Context) -> Self {
         let mut reality = Reality::default();
         /* Create the ground. */
-        let collider = ColliderBuilder::cuboid(WORLD_WIDTH, 0.1).build();
+        let collider = ColliderBuilder::cuboid(WORLD_WIDTH, 0.1)
+            .translation(vector![-WORLD_WIDTH/2.0, 0.0])
+            .build();
         reality.collider_set.insert(collider);
 
         /* Create the bouncing ball. */
         let rigid_body = RigidBodyBuilder::new_dynamic()
-            .translation(vector![WORLD_WIDTH / 2.0, WORLD_HEIGHT])
+            .translation(vector![0.0, WORLD_HEIGHT])
             .build();
-        let collider = ColliderBuilder::ball(BALL_RADIUS).restitution(0.95).build();
+        let collider = ColliderBuilder::ball(BALL_RADIUS).restitution(0.9).build();
         let ball_body_handle = reality.rigid_body_set.insert(rigid_body);
         reality.collider_set.insert_with_parent(
             collider,
@@ -113,8 +115,8 @@ impl event::EventHandler<ggez::GameError> for TransPlatformer {
     fn draw(&mut self, ctx: &mut Context) -> GameResult {
         println!("screen size: {:?}", graphics::size(ctx));
         graphics::clear(ctx, [0.5, 0.5, 0.5, 1.0].into());
-        graphics::set_screen_coordinates(ctx, [0.0, 0.0, WORLD_WIDTH, WORLD_HEIGHT].into())?;
-        let bg_rect = graphics::Rect::new(0.0, 0.0, 9.0, 9.0);
+        graphics::set_screen_coordinates(ctx, [-WORLD_WIDTH/2.0, WORLD_HEIGHT, WORLD_WIDTH, -WORLD_HEIGHT].into())?;
+        let bg_rect = graphics::Rect::new(-WORLD_WIDTH*0.4, WORLD_HEIGHT*0.1, WORLD_WIDTH*0.8, WORLD_HEIGHT*0.8);
         dbg!(&bg_rect);
 
         let bg = graphics::Mesh::new_rectangle(
@@ -125,33 +127,33 @@ impl event::EventHandler<ggez::GameError> for TransPlatformer {
         )?;
         graphics::draw(ctx, &bg, (Vec2::new(1.0, 1.0),))?;
 
-        // for i in 0..10 {
-        //     for j in 0..10 {
-        //         let c = graphics::Mesh::new_circle(
-        //             ctx,
-        //             graphics::DrawMode::Fill(Default::default()),
-        //             Vec2::new(i as f32 * 50.0, j as f32 * 50.0),
-        //             5.0,
-        //             1.0,
-        //             [1.0, j as f32 * 0.1, 0.0, 1.0].into(),
-        //         )?;
-        //         graphics::draw(ctx, &c, (Vec2::new(5.0, 5.0),))?;
-        //     }
-        // }
+        //for i in 0..10 {
+        //    for j in 0..10 {
+        //        let c = graphics::Mesh::new_circle(
+        //            ctx,
+        //            graphics::DrawMode::Fill(Default::default()),
+        //            Vec2::new(i as f32 * 50.0, j as f32 * 50.0),
+        //            5.0,
+        //            1.0,
+        //            [1.0, j as f32 * 0.1, 0.0, 1.0].into(),
+        //        )?;
+        //        graphics::draw(ctx, &c, (Vec2::new(5.0, 5.0),))?;
+        //    }
+        //}
 
-        // for i in 0..10 {
-        //     for j in 0..10 {
-        //         let c = graphics::Mesh::new_circle(
-        //             ctx,
-        //             graphics::DrawMode::Fill(Default::default()),
-        //             Vec2::new(0.0, 0.0),
-        //             5.0,
-        //             1.0,
-        //             [0.0, j as f32 * 0.1, 1.0, 1.0].into(),
-        //         )?;
-        //         graphics::draw(ctx, &c, (Vec2::new(i as f32 * 10.0, j as f32 * 10.0),))?;
-        //     }
-        // }
+        //for i in 0..10 {
+        //    for j in 0..10 {
+        //        let c = graphics::Mesh::new_circle(
+        //            ctx,
+        //            graphics::DrawMode::Fill(Default::default()),
+        //            Vec2::new(0.0, 0.0),
+        //            5.0,
+        //            1.0,
+        //            [0.0, j as f32 * 0.1, 1.0, 1.0].into(),
+        //        )?;
+        //        graphics::draw(ctx, &c, (Vec2::new(i as f32 * 10.0, j as f32 * 10.0),))?;
+        //    }
+        //}
 
         let origin = Vec2::new(0.0, 0.0);
         let body = graphics::MeshBuilder::new()
@@ -159,7 +161,7 @@ impl event::EventHandler<ggez::GameError> for TransPlatformer {
                 graphics::DrawMode::fill(),
                 origin,
                 BALL_RADIUS,
-                0.4,
+                0.005,
                 Color::WHITE,
             )?
             .build(ctx)?;
